@@ -14,6 +14,7 @@ import os
 import sys
 
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',  # 全文检索框架
     'cart.apps.CartConfig',  # 购物车模块
     'user.apps.UserConfig',  # 用户模块
     'goods.apps.GoodsConfig',  # 商品模块
@@ -169,3 +171,25 @@ SESSION_CACHE_ALIAS = "default"
 
 # 配置login_url的地址
 LOGIN_URL = "/user/login"
+
+# 配置django默认的上传文件使用的类
+DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.FDFSStorage'
+
+# 配置fdfs使用的client_conf的路径
+FDFS_CLIENT_CONF_PATH = './utils/fastdfs/client.conf'
+# 配置fdfs存储服务器上的ip和端口号
+FDFS_SERVER_URL = "http://192.168.1.110:8080/"
+
+# 全文检索框架的配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        #使用whoosh引擎
+        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+        #索引文件路径
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+
+#当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

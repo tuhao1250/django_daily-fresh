@@ -1,0 +1,154 @@
+{% extends 'base_detail_list.html' %}
+{% load static %}
+{% block title %}
+    天天生鲜-商品详情
+{% endblock title %}
+
+{% block main_content %}
+    <div class="breadcrumb">
+        <a href="{% url 'goods:index' %}">全部分类</a>
+        <span>></span>
+        <a href="{% url 'goods:list' goods.type.id 1 %}">{{ goods.type.name }}</a>
+        <span>></span>
+        <a href="{% url 'goods:detail' goods.id %}">{{ goods.name }}</a>
+    </div>
+
+    <div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl"><img src="{{ goods.image.url }}"></div>
+
+        <div class="goods_detail_list fr">
+            <h3>{{ goods.name }}</h3>
+            <p>{{ goods.desc }}</p>
+            <div class="prize_bar">
+                <span class="show_pirze">¥<em>{{ goods.price }}</em></span>
+                <span class="show_unit">单  位：{{ goods.unite }}</span>
+            </div>
+            <div class="goods_num clearfix">
+                <div class="num_name fl">数 量：</div>
+                <div class="num_add fl">
+                    <input type="text" class="num_show fl" value="1">
+                    <a href="javascript:;" class="add fr">+</a>
+                    <a href="javascript:;" class="minus fr">-</a>
+                </div>
+            </div>
+            <div>
+                <p>其他规格</p>
+                <ul>
+                    {% for goods in same_goods_list %}
+                        <li><a href="{% url 'goods:detail' goods.id %}">{{ goods.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="total">总价：<em>16.80元</em></div>
+            <div class="operate_btn">
+                <a href="javascript:;" class="buy_btn">立即购买</a>
+                <a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main_wrap clearfix">
+        <div class="l_wrap fl clearfix">
+            <div class="new_goods">
+                <h3>新品推荐</h3>
+                <ul>
+                    {% for goods in goods_list %}
+                        <li>
+                            <a href="{% url 'goods:detail' goods.id %}"><img src="{{ goods.image.url }}"></a>
+                            <h4><a href="{% url 'goods:detail' goods.id %}">{{ goods.name }}</a></h4>
+                            <div class="prize">￥{{ goods.price }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="r_wrap fr clearfix">
+            <ul class="detail_tab clearfix">
+                <li class="active">商品介绍</li>
+                <li>评论</li>
+            </ul>
+
+            <div class="tab_content">
+                <dl>
+                    <dt>商品详情：</dt>
+                    <dd>{{ goods.goods.detail | safe }}</dd>
+                </dl>
+            </div>
+
+        </div>
+    </div>
+{% endblock main_content %}
+{% block bottomhtml %}
+    <div class="add_jump"></div>
+{% endblock bottomhtml %}
+{% block bottomfiles %}
+    <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script type="text/javascript">
+        update_total_amount();
+
+        // 计算商品的总价
+        function update_total_amount() {
+            // 获取商品单价
+            price = $('.show_pirze').children('em').text();
+            // 获取商品数量
+            count = $('.num_show').val();
+            // 计算总价格
+            price = parseFloat(price);
+            count = parseInt(count);
+            amount = price * count;
+            // 设置总价格
+            $('.total').children('em').text(amount.toFixed(2) + '元');
+        }
+
+        // 增加商品的数量
+        $('.add').click(function () {
+            count = $('.num_show').val();
+            count = parseInt(count) + 1;
+            // 重新设置商品数量
+            $('.num_show').val(count);
+            // 调用更新总价格的方法
+            update_total_amount();
+        });
+        $('.minus').click(function () {
+            count = $('.num_show').val();
+            count = parseInt(count) - 1;
+            if (count <= 0) {
+                count = 1;
+            }
+            // 重新设置商品数量
+            $('.num_show').val(count);
+            // 调用更新总价格的方法
+            update_total_amount();
+        });
+        // 手动输入数量
+        $('.num_show').blur(function () {
+            count = $(this).val();
+            if (isNaN(count) || count.trim().length === 0 || parseInt(count) <= 0) {
+                count = 1;
+            }
+            // 重新设置商品数量
+            $(this).val(parseInt(count));
+            update_total_amount();
+        });
+        var $add_x = $('#add_cart').offset().top;
+        var $add_y = $('#add_cart').offset().left;
+
+        var $to_x = $('#show_count').offset().top;
+        var $to_y = $('#show_count').offset().left;
+
+        $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
+        $('#add_cart').click(function () {
+            $(".add_jump").stop().animate({
+                    'left': $to_y + 7,
+                    'top': $to_x + 7
+                },
+                "fast", function () {
+                    $(".add_jump").fadeOut('fast', function () {
+                        $('#show_count').html(2);
+                    });
+
+                });
+        })
+    </script>
+{% endblock bottomfiles %}
